@@ -18,7 +18,7 @@ func NewRepository(db *sql.DB) *Repository {
 }
 
 // Add new announcement.
-func (r Repository) Add(ctx context.Context, ac entity.CreateAnnouncement) (int64, error) {
+func (r *Repository) Add(ctx context.Context, ac entity.CreateAnnouncement) (int64, error) {
 	tx, err := r.db.Begin()
 	if err != nil {
 		return 0, err

@@ -17,6 +17,6 @@ type Announcement struct {
 func NewAnnouncement(r Repository) *Announcement {
 	return &Announcement{repo: r}
 }
-func (a Announcement) Create(ctx context.Context, ca entity.CreateAnnouncement) (int64, error) {
+func (a *Announcement) Create(ctx context.Context, ca entity.CreateAnnouncement) (int64, error) {
 	return a.repo.Add(ctx, ca)
 }
