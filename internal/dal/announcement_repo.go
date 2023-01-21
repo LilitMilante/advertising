@@ -26,14 +26,14 @@ func (r *Repository) Add(ctx context.Context, ac entity.CreateAnnouncement) (int
 	defer tx.Rollback()
 
 	var id int64
-	q := `INSERT INTO announcements (title, description, price) VALUES ($1, $2, $3)`
+	q := `INSERT INTO announcements (title, description, price) VALUES ($1, $2, $3) RETURNING id`
 
 	err = tx.QueryRowContext(ctx, q, ac.Title, ac.Description, ac.Price).Scan(&id)
 	if err != nil {
 		return 0, err
 	}
 
-	q = `INSERT INTO photos (announcement_id, link) VALUES ($1, $2)`
+	q = `INSERT INTO photos (id_announcement, link) VALUES ($1, $2)`
 
 	stmt, err := tx.PrepareContext(ctx, q)
 	if err != nil {

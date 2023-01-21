@@ -4,7 +4,11 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/LilitMilante/advertising/internal/api"
 	"github.com/LilitMilante/advertising/internal/dal"
+	"github.com/LilitMilante/advertising/internal/services"
+
+	_ "github.com/lib/pq"
 )
 
 type Config struct {
@@ -29,7 +33,8 @@ func NewConfig() *Config {
 }
 
 type App struct {
-	c Config
+	c      Config
+	server *api.Server
 }
 
 func NewApp(c Config) (*App, error) {
@@ -37,11 +42,15 @@ func NewApp(c Config) (*App, error) {
 	if err != nil {
 		return nil, err
 	}
-	_ = dal.NewRepository(db)
+	repo := dal.NewRepository(db)
+	service := services.NewAnnouncement(repo)
+	handler := api.NewHandler(service)
+	server := api.NewServer(c.HTTPPort, handler)
 
-	//	todo Init other modules.
-
-	return &App{}, nil
+	return &App{
+		c:      Config{},
+		server: server,
+	}, nil
 }
 
 func ConnectDB(c Config) (*sql.DB, error) {
@@ -56,5 +65,14 @@ func ConnectDB(c Config) (*sql.DB, error) {
 		return nil, err
 	}
 
+	err = db.Ping()
+	if err != nil {
+		return nil, err
+	}
+
 	return db, nil
+}
+
+func (a *App) Start() error {
+	return a.server.ListenAndServe()
 }
