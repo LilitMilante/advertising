@@ -33,7 +33,7 @@ func (r *Repository) Add(ctx context.Context, ac entity.CreateAnnouncement) (int
 		return 0, err
 	}
 
-	q = `INSERT INTO photos (id_announcement, link) VALUES ($1, $2)`
+	q = `INSERT INTO photos (announcement_id, link) VALUES ($1, $2)`
 
 	stmt, err := tx.PrepareContext(ctx, q)
 	if err != nil {
@@ -54,4 +54,43 @@ func (r *Repository) Add(ctx context.Context, ac entity.CreateAnnouncement) (int
 	}
 
 	return id, nil
+}
+
+func (r *Repository) ByID(ctx context.Context, id int64) (entity.Announcement, error) {
+	q := `
+SELECT
+    a.id,
+    a.title,
+    a.description,
+    a.price,
+    p.link
+FROM announcements AS a 
+JOIN photos AS p ON a.id = p.announcement_id
+WHERE a.id = $1`
+
+	var a entity.Announcement
+
+	rows, err := r.db.QueryContext(ctx, q, id)
+	if err != nil {
+		return a, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var link string
+
+		err = rows.Scan(&a.ID, &a.Title, &a.Description, &a.Price, &link)
+		if err != nil {
+			return a, err
+		}
+
+		a.Photos = append(a.Photos, link)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return a, err
+	}
+
+	return a, nil
 }

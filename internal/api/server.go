@@ -25,4 +25,5 @@ func NewServer(port string, ah *AnnouncementHandler) *Server {
 
 func setAnnouncementRoutes(r *mux.Router, ah *AnnouncementHandler) {
 	r.HandleFunc("/announcements", ah.CreateAnnouncement).Methods(http.MethodPost, http.MethodOptions)
+	r.HandleFunc("/announcements/{id}", ah.AnnouncementByID).Methods(http.MethodGet, http.MethodOptions)
 }

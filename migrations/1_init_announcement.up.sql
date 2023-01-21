@@ -6,6 +6,6 @@ CREATE TABLE announcements (
 );
 
 CREATE TABLE photos (
-    id_announcement BIGINT REFERENCES announcements(id) NOT NULL,
+    announcement_id BIGINT REFERENCES announcements(id) NOT NULL,
     link TEXT NOT NULL
 );
